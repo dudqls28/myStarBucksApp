@@ -1,21 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
+import AppLoading from "expo-app-loading";
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
+import { NavigationContainer } from "@react-navigation/native";
+import Root from "./navigation/Root";
+import * as Font from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
+import {  QueryClient, QueryClientProvider} from "react-query";
+import { Asset } from 'expo-asset';
 export default function App() {
+  const [fontLoad] = Font.useFonts(Ionicons.font);
+  const startLoading = async () => {
+    await Font.loadAsync(Ionicons.font);
+  };
+  const queryClient = new QueryClient();
+  if(!startLoading){
+    return <AppLoading />;
+  }
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <QueryClientProvider client={queryClient}>
+    <NavigationContainer>
+      <Root />
+    </NavigationContainer>
+    </QueryClientProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
