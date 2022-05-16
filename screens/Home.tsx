@@ -140,30 +140,38 @@ const CoffeeTitle = styled.Text`
 `;
 const DeliversBtn = styled(Animated.createAnimatedComponent(TouchableOpacity))`
     position:absolute;
-    width:60px;
     height:60px;
     bottom:30px;
     right:30px;
     background-color:${TITLE_COLOR};
     align-items:center;
     justify-content:center;
+    flex-direction: row;
     border-radius:30px;
+`
+const DeliversText = styled.Text`
+    color:white;
+    align-items:center;
+    justify-content:center;
+    font-size: 18px;
+    margin-left : 15px;
+    font-weight: 600;
+    align-self: center;
 `
 const Home = () => {
     const queryClient = useQueryClient();
     const [refreshing,setRefreshing] = useState(false);
-    const [testWidth,setTestWidth] = useState(60);
-    const [scroll,setScroll] = useState(0);
-    const test = new Animated.Value(0);
-    const animatedTransition = Animated.spring(test,{
-    toValue: 1,
-    useNativeDriver: false
+    const [scroll,setScroll] = useState(false);
+    const scrollAni = useRef(new Animated.Value(0)).current;
+    const animatedTransition = Animated.spring(scrollAni,{
+        toValue: 1,
+        useNativeDriver: false
     });
-    const animatedTransition2 = Animated.spring(test,{
+    const animatedTransition2 = Animated.spring(scrollAni,{
         toValue: 0,
         useNativeDriver: false
     });
-    const interpolateTest = test.interpolate({inputRange:[0,1],outputRange:[60,200]});
+    const interpolateScroll = scrollAni.interpolate({inputRange:[0,0.5,1],outputRange:[60,140,200]});
     const { isLoading:coffeLoading,data:coffeeData}=useQuery(["coffee"],()=>
     fetch(
         `https://starbugs.herokuapp.com/api/menus`
@@ -176,20 +184,14 @@ const Home = () => {
     const panResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
-    
-            onPanResponderGrant: () => {
-              
-          
-            },
-      
             onPanResponderMove: (ev,gesture) => {
-              console.log(test);
-              if(scroll>gesture.dy){
+              if(0>gesture.dy){
                  animatedTransition2.start();
+                 setScroll(false);
               }else{
                   animatedTransition.start();
+                  setScroll(true);
               }
-              setScroll(gesture.dy);
             },
         })
       ).current;
@@ -281,7 +283,7 @@ const Home = () => {
             </EventSection>
             
         </Container>
-        <DeliversBtn style={{width:interpolateTest}} ><MaterialIcons name="delivery-dining" size={36} color="white" /></DeliversBtn>
+        <DeliversBtn style={{width:interpolateScroll,alignItems : scroll ? 'flex-start' : 'center',paddingLeft: scroll ? '5%' : '0%'}} ><MaterialIcons name="delivery-dining" size={36} color="white" style={{alignSelf:"center"}}/>{scroll ? <DeliversText>Delivers</DeliversText> : null}</DeliversBtn>
         </>
     )
 }
